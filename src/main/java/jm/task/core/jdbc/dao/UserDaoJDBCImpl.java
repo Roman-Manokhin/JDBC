@@ -15,19 +15,16 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        // обрабатывать ошибку в try можно перенести вниз
         Connection connection = null;
-        String sql = "CREATE TABLE if not exists users(\n" +
-                "id       bigint         NOT NULL PRIMARY KEY AUTO_INCREMENT,\n" +
-                "name     VARCHAR(50) NOT NULL,\n" +
-                "lastName VARCHAR(50) NOT NULL,\n" +
-                "age      TINYINT \n" +
-                ")";
 
         try {
             connection = getConnection();
-            Statement statement = connection.createStatement();
-            statement.execute(sql);
+            connection.createStatement().execute("CREATE TABLE if not exists users(\n" +
+                    "id       bigint         NOT NULL PRIMARY KEY AUTO_INCREMENT,\n" +
+                    "name     VARCHAR(50) NOT NULL,\n" +
+                    "lastName VARCHAR(50) NOT NULL,\n" +
+                    "age      TINYINT \n" +
+                    ")");
             connection.commit();
 
         } catch (SQLException e) {
@@ -53,12 +50,10 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         Connection connection = null;
-        String sql = "drop table if exists users";
 
         try {
             connection = getConnection();
-            Statement statement = connection.createStatement();
-            statement.execute(sql);
+            connection.createStatement().execute("drop table if exists users");
             connection.commit();
         } catch (SQLException e) {
             System.err.println("Ошибка при удалении таблицы");
@@ -83,11 +78,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         Connection connection = null;
-        String sql = "insert into users(name, lastName, age) VALUES (?, ?, ?)";
 
         try {
             connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement preparedStatement = connection
+                    .prepareStatement("insert into users(name, lastName, age) VALUES (?, ?, ?)");
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
@@ -117,11 +112,10 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
         Connection connection = null;
-        String sql = "delete from users where id = ?";
 
         try {
             connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            PreparedStatement preparedStatement = connection.prepareStatement("delete from users where id = ?");
             preparedStatement.setLong(1, id);
 
             preparedStatement.executeUpdate();
@@ -152,12 +146,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
         List<User> users = new ArrayList<>();
 
-        String sql = "SELECT * FROM users";
-
         try {
             connection = getConnection();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
+            ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM users");
             connection.commit();
             while (resultSet.next()) {
                 User user = new User();
@@ -192,13 +183,10 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void cleanUsersTable() {
         Connection connection = null;
-        String sql = "TRUNCATE TABLE users";//найти другой метод для очистки таблицы ddl
 
         try {
             connection = getConnection();
-            Statement statement = connection.createStatement();
-            statement.execute(sql);
-            connection.commit();
+            connection.createStatement().execute("TRUNCATE TABLE users");
         } catch (SQLException e) {
             System.err.println("Ошибка при очистке таблицы User");
             e.printStackTrace();
